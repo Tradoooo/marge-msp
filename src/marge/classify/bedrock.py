@@ -131,6 +131,22 @@ class BedrockClassifierModel:
         return self._answer_text(payload, self.family)
 
 
+EXCLUSION_WORDS = (
+    "développement",
+    "developpement",
+    "development",
+    "code",
+    "formation",
+    "training",
+    "matériel",
+    "materiel",
+    "hardware",
+    "migration",
+)
+"""Words an exclusion line carries, in both languages: the contracts are
+English, a contract still on the disk of the MSP can be French."""
+
+
 class LocalRuleModel:
     """Deterministic keyword classifier: offline demo and test reference."""
 
@@ -155,9 +171,7 @@ class LocalRuleModel:
     @staticmethod
     def _clause(scope: str) -> str:
         for line in scope.splitlines():
-            if line.startswith("- ") and any(
-                word in line for word in ("développement", "code", "formation", "matériel")
-            ):
+            if line.startswith("- ") and any(word in line for word in EXCLUSION_WORDS):
                 return f"Exclusions : « {line[2:].strip()} »"
         return "Exclusions du contrat"
 

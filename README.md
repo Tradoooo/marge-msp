@@ -38,6 +38,10 @@ this repository. The portal signs the judges in with **Amazon Cognito**: one
 account per role of the specification, and one judge account that can read and
 validate.
 
+The demo dataset was reloaded on **2026-11-17**: twelve English client names
+(the golden case is **Calder Logistics**, 19.4 % margin) and twelve English
+contracts (legal form `LTD`).
+
 | Login | Role | What it sees |
 |---|---|---|
 | `judge@marge.demo` | CONTROLLER | Every client, the hourly costs, and the three validation queues |
