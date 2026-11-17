@@ -199,6 +199,20 @@ def test_local_rule_model_classifies_the_three_cases() -> None:
     )
 
 
+def test_local_rule_model_quotes_the_exclusion_of_the_english_contracts() -> None:
+    """The demo contracts are English: the cited clause must be found in them."""
+    model = LocalRuleModel()
+    result = classify(
+        intervention("Formation des utilisateurs au nouvel outil"),
+        golden_contract(),
+        model,
+        golden_settings(),
+    )
+    assert result.work_class == WorkClass.OUT_OF_SCOPE
+    assert "application development" in result.cited_clause
+    assert "training of the client's teams" in result.cited_clause or "development" in result.cited_clause
+
+
 def test_scripted_model_answers_are_used_in_order() -> None:
     model = ScriptedModel(
         responses=[

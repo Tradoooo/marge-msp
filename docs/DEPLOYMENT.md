@@ -79,11 +79,17 @@ Les six familles de routes du chapitre 16 répondent **200** derrière CloudFron
 
 ## 3. Données chargées et vérifiées
 
-- **DynamoDB** : 12 clients, 13 versions de contrat, 3 922 interventions, 84 lignes
-  de coûts AWS, 78 factures, 5 tarifs, 5 outils.
+**Rechargé le 2026-11-17** (jeu de démonstration complet, contrats en anglais
+`LTD`, 11 clients renommés) :
+
+- **DynamoDB** (`marge-validations`) : 12 clients, 13 versions de contrat,
+  3 922 interventions, 84 lignes de coûts AWS, 78 factures, 5 tarifs, 5 outils,
+  49 correspondances proposées, 3 697 classifications.
 - **S3 curaté** : les 5 tables de l'annexe A en JSON Lines partitionné
-  (`analytical/<table>/month=AAAA-MM/part-0.jsonl`), 5 024 lignes, 20 fichiers.
-- **Athena** : tables externes créées par le DDL généré par
+  (`analytical/<table>/month=AAAA-MM/part-0.jsonl`), 4 884 lignes, 20 fichiers.
+- **S3 raw** : les 13 PDF des contrats (`contracts/ctr-XXX-vY.pdf`), en anglais.
+- Contrats : 13 extraits, **12 validés**, `ctr-010` laissé `EXTRACTED` (R4).
+- Athena : tables externes créées par le DDL généré par
   `marge.store.athena` (serde JSON natif, types conservés), partitions réparées
   par `MSCK REPAIR TABLE`. Requêtes de contrôle exécutées :
 
@@ -155,9 +161,9 @@ l'usage, quelques centimes pour ce volume. Deux postes à surveiller :
 | # | Action | Qui | Pourquoi |
 |---|---|---|---|
 | 1 | **Activer Bedrock Data Automation** dans la console | Baptiste | Seul blocage côté AWS ; débloque la lecture des PDF par l'IA |
-| 2 | **Démarrer l'essai Quick Suite le 23 novembre** | Baptiste | 30 jours gratuits ; démarré plus tôt il expirerait avant la fin du jugement (22 janvier) |
+| 2 | **Démarrer l'essai Quick Suite (30 jours)** — **en attente du go** | Gaia tranche, puis Baptiste | Le chiffrage est fait (`QUICK-COST.md` dans le dossier projet) : l'essai couvre 25 utilisateurs et les 250 $ de frais d'infrastructure, jusqu'au 11 décembre c'est 0 $, après c'est 256 $ (Essentials) jusqu'à la fin du jugement. **Rien n'est activé avant l'accord.** |
 | 3 | Créer les 3 éléments Quick non automatisables (agent de chat, espace contrats, flux planifié) | Baptiste, procédure `docs/RUNBOOK.md` §4 | L'API ne sait pas les créer |
-| 4 | Créer les utilisateurs Cognito de démonstration | Baptiste | EF-ADM-03, identifiants pour les juges |
+| 4 | Créer les utilisateurs Cognito de démonstration | fait | EF-ADM-03, identifiants pour les juges (`marge/demo/credentials`) |
 | 5 | Basculer `MARGE_AUTH_MODE` de `dev` à `cognito` | après (4) | Le mode `dev` lit l'identité dans les en-têtes : acceptable pour une démo sur données fictives, pas pour la production |
 | 6 | Tourner la vidéo | Baptiste | `docs/VIDEO-SCRIPT.md` est prêt, plan par plan |
 | 7 | Soumettre sur Devpost + partager le dépôt | Baptiste | `testing@devpost.com`, `aws-msp@amazon.com` |
