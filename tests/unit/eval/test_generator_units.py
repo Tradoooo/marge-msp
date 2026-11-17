@@ -9,8 +9,8 @@ from generator import billing, references
 from generator.common import (
     MONTHS,
     SEED,
-    french_date,
-    french_money,
+    english_date,
+    english_money,
     month_of,
     write_csv,
     write_json,
@@ -121,10 +121,10 @@ def test_pdf_generator_splits_long_text_into_pages():
     assert sum(len(page) for page in pages) == 120
 
 
-def test_french_formatting_helpers():
-    assert french_date(date(2026, 5, 1)) == "1er mai 2026"
-    assert french_date(date(2026, 5, 4)) == "4 mai 2026"
-    assert french_money(4600) == "4 600,00 EUR"
+def test_english_formatting_helpers():
+    assert english_date(date(2026, 5, 1)) == "1 May 2026"
+    assert english_date(date(2026, 5, 4)) == "4 May 2026"
+    assert english_money(4600) == "EUR 4,600.00"
 
 
 def test_csv_writer_uses_unix_endings_and_no_quote_noise(tmp_path):

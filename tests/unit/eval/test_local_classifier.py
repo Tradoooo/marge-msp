@@ -23,15 +23,15 @@ def _contract(*exclusions: str) -> Contract:
     fields = ContractFields(
         customer_name="CALDER LOGISTICS SAS",
         services_included=(
-            "Supervision 24/7 de l'infrastructure",
-            "Sauvegarde et restauration des données",
-            "Patch management des systèmes d'exploitation",
-            "Mise à jour de version des bases de données",
+            "24/7 infrastructure monitoring",
+            "Data backup and restoration",
+            "Operating system patch management",
+            "Database version upgrades, major and minor releases",
         ),
         exclusions=exclusions
         or (
-            "les développements applicatifs et la modification du code du Client",
-            "la formation des équipes du Client",
+            "application development and modification of the Client's code",
+            "training of the Client's teams",
         ),
         sla_commitments=(SlaCommitment("Disponibilité", "99,5 %"),),
     )
@@ -72,14 +72,12 @@ def test_classifier_marks_application_development_as_out_of_scope():
         _contract(),
     )
     assert result.work_class == WorkClass.OUT_OF_SCOPE
-    assert "développements applicatifs" in result.cited_clause
+    assert "application development" in result.cited_clause
 
 
 def test_classifier_never_says_out_of_scope_when_the_contract_is_ambiguous():
     """The prudence rule (spec 13.2): a hedged exclusion gives UNCERTAIN."""
-    vague = (
-        "les maintenances évolutives dont l'ampleur excède le cadre raisonnable d'une intervention courante"
-    )
+    vague = "evolving maintenance whose scale exceeds what a reasonable routine intervention covers"
     result = classify(
         _intervention("Maintenance évolutive", "Maintenance évolutive du module de facturation"),
         _contract(vague),

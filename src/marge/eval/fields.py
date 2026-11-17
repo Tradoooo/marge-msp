@@ -13,6 +13,7 @@ value shown next to its source passage).
 
 from __future__ import annotations
 
+import re
 import unicodedata
 from decimal import Decimal, InvalidOperation
 
@@ -54,20 +55,39 @@ def normalise_text(value: object) -> str:
     return " ".join(text.replace("\u00a0", " ").replace("\u202f", " ").split())
 
 
+AMOUNT_NOISE = re.compile(
+    r"(?i)(eur|usd|gbp|chf|€|\$|ht|excl\.?\s*vat|excl\.?\s*tax|vat|tax|heures?|hours?|%)"
+)
+"""Words that never carry a digit: currencies, tax markers, units."""
+
+
 def normalise_amount(value: object) -> str:
-    """Canonical decimal string: ``"4 600,00 EUR HT"`` -> ``"4600.00"``."""
+    """Canonical decimal string: ``"EUR 4,600.00 excl. VAT"`` -> ``"4600.00"``.
+
+    Both separators are accepted: the last one written is the decimal one
+    (``4 600,00`` French, ``4,600.00`` English).
+    """
     if value is None:
         return ""
-    text = str(value)
-    for token in ("EUR", "USD", "€", "HT", "heures", "heure", "%"):
-        text = text.replace(token, " ")
+    text = AMOUNT_NOISE.sub(" ", str(value))
     text = text.replace("\u00a0", " ").replace("\u202f", " ").replace(" ", "")
-    text = text.replace(",", ".")
+    text = _decimal_separator(text)
     cleaned = "".join(char for char in text if char.isdigit() or char in ".-")
     try:
         return f"{Decimal(cleaned):.2f}"
     except (InvalidOperation, ValueError):
         return normalise_text(value)
+
+
+def _decimal_separator(text: str) -> str:
+    """One decimal separator, thousands removed."""
+    if "," in text and "." in text:
+        if text.rfind(".") > text.rfind(","):
+            return text.replace(",", "")
+        return text.replace(".", "").replace(",", ".")
+    if "," in text:
+        return text.replace(",", ".")
+    return text
 
 
 def normalise_list(items: object) -> tuple[str, ...]:

@@ -165,6 +165,8 @@ The generator writes each contract twice: a **PDF** (a minimal, text-only PDF
 produced with the standard library — no reportlab on the CI workers) and the
 **same text** as `.txt`. The PDF is what the demo shows; the `.txt` is what
 tests read, so nothing needs a PDF parser. Both must contain every Annex B
-field in prose, in French, with visibly different layouts across the 12
-contracts (different clause numbering, different order, at least one with a
-table-like layout, one with an ambiguous exclusion).
+field in prose, **in English** (legal form `LTD`: the judges and the video
+audience read them), with visibly different layouts across the 12 contracts
+(different clause numbering, different order, at least one with a table-like
+layout, one with an ambiguous exclusion). The tickets, the billing rows and the
+invoices stay French — that is the data a French MSP has on disk.

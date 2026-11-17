@@ -126,13 +126,13 @@ def trap_contract() -> Contract:
         start_date=date(2026, 1, 1),
         end_date=date(2026, 12, 31),
         services_included=(
-            "Supervision 24/7 de l'infrastructure",
-            "Sauvegarde et restauration",
-            "Patch management des systèmes",
+            "24/7 infrastructure monitoring",
+            "Data backup and restoration",
+            "Operating system patch management",
         ),
         exclusions=(
-            "les développements applicatifs et la modification du code du Client",
-            "la formation des équipes du Client",
+            "application development and modification of the Client's code",
+            "training of the Client's teams",
         ),
     )
     return Contract(

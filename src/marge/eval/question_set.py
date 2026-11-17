@@ -101,11 +101,11 @@ def _q12(analyst: Analyst) -> dict:
 
 
 def _q13(analyst: Analyst) -> dict:
-    return {"value": analyst.contract_includes("c-003", "base de données")}
+    return {"value": analyst.contract_includes("c-003", "database")}
 
 
 def _q14(analyst: Analyst) -> dict:
-    return {"value": analyst.exclusion_containing("c-002", "développements applicatifs")}
+    return {"value": analyst.exclusion_containing("c-002", "application development")}
 
 
 def _q15(analyst: Analyst) -> dict:

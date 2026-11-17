@@ -2,7 +2,8 @@
 
 Everything here is deterministic: the seed is fixed and no wall-clock value is
 read. Amounts are plain decimals written with a ``.`` separator (canonical
-interchange format), while the generated *prose* uses French formatting.
+interchange format), while the generated *prose* uses English formatting: the
+demo is shown to an English-speaking audience, contracts included.
 """
 
 from __future__ import annotations
@@ -30,19 +31,19 @@ GENERATED_AT = "2026-11-11T00:00:00Z"
 _CENT = Decimal("0.01")
 _HUNDREDTH = Decimal("0.01")
 
-_FRENCH_MONTHS = (
-    "janvier",
-    "février",
-    "mars",
-    "avril",
-    "mai",
-    "juin",
-    "juillet",
-    "août",
-    "septembre",
-    "octobre",
-    "novembre",
-    "décembre",
+_ENGLISH_MONTHS = (
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
 )
 
 
@@ -83,22 +84,20 @@ def business_days(month: str) -> list[date]:
     return [d for d in month_days(month) if d.weekday() < 5]
 
 
-def french_date(day: date) -> str:
-    """``2026-05-01`` -> ``1er mai 2026`` (French contract style)."""
-    label = _FRENCH_MONTHS[day.month - 1]
-    head = "1er" if day.day == 1 else str(day.day)
-    return f"{head} {label} {day.year}"
+def english_date(day: date) -> str:
+    """``2026-05-01`` -> ``1 May 2026`` (English contract style)."""
+    return f"{day.day} {_ENGLISH_MONTHS[day.month - 1]} {day.year}"
 
 
-def french_money(value: object, currency: str = "EUR") -> str:
-    """``4000`` -> ``4 000,00 EUR`` (thin space thousands separator)."""
-    text = f"{money(value):,.2f}".replace(",", " ").replace(".", ",")
-    return f"{text} {currency}"
+def english_money(value: object, currency: str = "EUR") -> str:
+    """``4000`` -> ``EUR 4,000.00`` (comma thousands separator)."""
+    text = f"{money(value):,.2f}"
+    return f"{currency} {text}"
 
 
-def french_hours(value: object) -> str:
-    """``2.5`` -> ``2,5 heures``."""
-    return f"{hours(value):.2f}".replace(".", ",") + " heures"
+def english_hours(value: object) -> str:
+    """``2.5`` -> ``2.5 hours``."""
+    return f"{hours(value):.2f} hours"
 
 
 def decimal_text(value: object) -> str:

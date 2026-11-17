@@ -4,8 +4,10 @@ The twelve concrete clients live in :mod:`generator.profile_data`; the prose,
 the PDF and ``expected/contract_fields.json`` all derive from these objects, so
 a contract value is written exactly once (no duplication).
 
-Generated *data* is French (it is what a French MSP would have on disk); the
-code around it is English (docs/CONTRACT.md rule 10).
+The contracts are written in **English** (legal form ``LTD``): they are shown
+to the judges and to the video audience. The rest of the generated data (tickets,
+billing, invoices) stays French — it is what a French MSP would have on disk —
+and the code around it is English (docs/CONTRACT.md rule 10).
 """
 
 from __future__ import annotations
@@ -14,36 +16,34 @@ from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
 
-MSP_LEGAL_NAME = "ATLANTIQUE SYSTEMES SAS"
-MSP_BRAND = "Atlantique Systèmes"
-MSP_ADDRESS = "12 rue des chantiers, 44000 Nantes"
+MSP_LEGAL_NAME = "ATLANTIQUE SYSTEMS LTD"
+MSP_BRAND = "Atlantique Systems"
+MSP_ADDRESS = "12 Shipyard Street, 44000 Nantes"
 
 ACCOUNT_MANAGERS = ("am-01", "am-02", "am-03", "am-04")
 
 CATALOGUE_INCLUDED = (
-    "Supervision 24/7 de l'infrastructure",
-    "Sauvegarde et restauration des données",
-    "Patch management des systèmes d'exploitation",
-    "Gestion des incidents d'infrastructure",
-    "Gestion des accès et des comptes",
-    "Optimisation des coûts AWS",
+    "24/7 infrastructure monitoring",
+    "Data backup and restoration",
+    "Operating system patch management",
+    "Infrastructure incident management",
+    "Access and account management",
+    "AWS cost optimisation",
 )
 
 CATALOGUE_EXCLUDED = (
-    "les développements applicatifs et la modification du code du Client",
-    "la formation des équipes du Client",
-    "l'achat de matériel et de licences tierces",
-    "les projets de migration applicative",
-    "les audits de sécurité applicative",
+    "application development and modification of the Client's code",
+    "training of the Client's teams",
+    "purchase of hardware and third-party licences",
+    "application migration projects",
+    "application security audits",
 )
 
-VAGUE_EXCLUSION = (
-    "les maintenances évolutives dont l'ampleur excède le cadre raisonnable d'une intervention courante"
-)
+VAGUE_EXCLUSION = "evolving maintenance whose scale exceeds what a reasonable routine intervention covers"
 """The deliberately ambiguous exclusion of c-007 (spec 19.1).
 
-"raisonnable" and "courante" make the boundary impossible to apply, which is
-exactly the situation the classifier must report as UNCERTAIN (spec 13.2).
+"reasonable" makes the boundary impossible to apply, which is exactly the
+situation the classifier must report as UNCERTAIN (spec 13.2).
 """
 
 
@@ -158,23 +158,22 @@ def mix(n1: str, n2: str, n3: str, architect: str) -> tuple[Decimal, Decimal, De
 
 
 SLA_STANDARD_247 = (
-    SlaSpec("Prise en charge d'un incident critique", "30 minutes, 24 h sur 24"),
-    SlaSpec("Disponibilité de la plateforme supervisée", "99,5 % par mois"),
-    SlaSpec("Restauration d'une sauvegarde", "4 heures ouvrées"),
+    SlaSpec("Take-over of a critical incident", "30 minutes, 24/7"),
+    SlaSpec("Availability of the supervised platform", "99.5% per month"),
+    SlaSpec("Restoration of a backup", "4 business hours"),
 )
 
 SLA_STANDARD_OUVRE = (
-    SlaSpec("Prise en charge d'un incident bloquant", "2 heures ouvrées"),
-    SlaSpec("Disponibilité de la plateforme supervisée", "99,0 % par mois"),
-    SlaSpec("Restauration d'une sauvegarde", "8 heures ouvrées"),
+    SlaSpec("Take-over of a blocking incident", "2 business hours"),
+    SlaSpec("Availability of the supervised platform", "99.0% per month"),
+    SlaSpec("Restoration of a backup", "8 business hours"),
 )
 
 PENALTY_STANDARD = (
-    "2 % de l'abonnement mensuel par incident critique pris en charge au-delà du délai "
-    "de l'engagement, plafonné à 15 % de l'abonnement mensuel."
+    "2 % of the monthly subscription for each critical incident taken over beyond the committed "
+    "delay, capped at 15 % of the monthly subscription."
 )
 
 INDEXATION_STANDARD = (
-    "Révision annuelle du prix au 1er janvier, sur présentation de l'indice Syntec, "
-    "dans la limite de 3 % par an."
+    "Annual price review on 1 January, on presentation of the Syntec index, within a limit of 3 % per year."
 )

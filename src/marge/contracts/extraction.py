@@ -22,65 +22,107 @@ from ..domain import ContractFields, ExtractedField, SourceSpan
 from .schema import parse_date, parse_money, to_contract_fields
 
 AMOUNT = r"([0-9][0-9 \u00a0.,]*)"
+CURRENCY = r"(?:EUR|USD|GBP)?\s*"
 
 LABELS: dict[str, str] = {
+    # English labels of the generated contracts, and their French spellings:
+    # a contract still on the disk of the MSP reads the same way.
     "client": "customer_name",
     "raison sociale": "customer_name",
+    "effective date": "start_date",
     "date d'effet": "start_date",
     "date de début": "start_date",
     "prise d'effet": "start_date",
+    "end date": "end_date",
     "date de fin": "end_date",
     "échéance": "end_date",
+    "renewal": "renewal_terms",
     "reconduction": "renewal_terms",
+    "termination notice": "termination_notice",
     "préavis de résiliation": "termination_notice",
     "préavis": "termination_notice",
+    "monthly subscription": "monthly_subscription",
     "abonnement mensuel": "monthly_subscription",
     "devise": "currency",
+    "included hours per month": "included_hours_per_month",
     "heures incluses par mois": "included_hours_per_month",
     "heures incluses": "included_hours_per_month",
     "forfait mensuel": "included_hours_per_month",
+    "out-of-package hourly rate": "extra_hour_rate",
     "tarif horaire hors forfait": "extra_hour_rate",
+    "service windows": "service_hours",
     "plages de service": "service_hours",
     "horaires de service": "service_hours",
+    "penalties": "penalties",
     "pénalités": "penalties",
+    "price indexation clause": "indexation_clause",
     "indexation": "indexation_clause",
     "clause d'indexation": "indexation_clause",
+    "covered accounts and resources": "covered_accounts_or_resources",
     "comptes et ressources couverts": "covered_accounts_or_resources",
     "ressources couvertes": "covered_accounts_or_resources",
 }
 
 NARRATIVE: dict[str, tuple[str, int]] = {
-    "customer_name": (r"ci-après\s*«\s*le Client\s*»\s*,\s*([^,\n]{3,80})", 1),
-    "start_date": (
-        r"(?:prend effet|effet le|entré en vigueur le)\s+(?:le\s+)?([0-9]{1,2}\s+\w+\s+[0-9]{4})",
+    "customer_name": (
+        r"(?:et|and)\s+([^,\n]{3,80}),\s*"
+        r"(?:ci-après\s*«\s*le Client\s*»|hereinafter the \"Client\")",
         1,
     ),
-    "end_date": (r"(?:se termine|termine le)\s+(?:le\s+)?([0-9]{1,2}\s+\w+\s+[0-9]{4})", 1),
-    "renewal_terms": (r"renouvelable\s+selon\s+les\s+modalités\s+suivantes\s*:\s*([^.\n]+)", 1),
-    "termination_notice": (r"préavis de résiliation est de\s+([0-9]+\s*(?:mois|jours?|semaines?))", 1),
+    "start_date": (
+        r"(?:prend effet|effet le|entré en vigueur le|takes effect on)\s+"
+        r"(?:le\s+)?([0-9]{1,2}\s+\w+\s+[0-9]{4})",
+        1,
+    ),
+    "end_date": (
+        r"(?:se termine|termine le|ends on)\s+(?:le\s+)?([0-9]{1,2}\s+\w+\s+[0-9]{4})",
+        1,
+    ),
+    "renewal_terms": (
+        r"(?:renouvelable\s+selon\s+les\s+modalités\s+suivantes|renewed on the following terms)"
+        r"\s*:\s*([^.\n]+)",
+        1,
+    ),
+    "termination_notice": (
+        r"(?:préavis de résiliation est de|termination notice is|with)\s+"
+        r"([0-9]+\s*(?:mois|months?|jours?|days?|semaines?|weeks?))",
+        1,
+    ),
     "monthly_subscription": (
-        r"(?:abonnement mensuel (?:est fixé à|de|fixé à)|prix de l'abonnement mensuel est fixé à)\s*"
-        + AMOUNT,
+        r"(?:abonnement mensuel (?:est fixé à|de|fixé à)|prix de l'abonnement mensuel est fixé à"
+        r"|monthly subscription (?:is set at|of))\s*" + CURRENCY + AMOUNT,
         1,
     ),
     "included_hours_per_month": (
-        r"(?:couvrant|comprend|pour)\s*" + AMOUNT + r"\s*heures?\s*(?:par mois|incluses chaque mois)",
+        r"(?:couvrant|comprend|pour|covering|includes)\s*" + AMOUNT + r"\s*hours?\s*"
+        r"(?:par mois|incluses chaque mois|per month)",
         1,
     ),
     "extra_hour_rate": (
-        r"(?:tarif horaire hors forfait (?:de|s'établit à)|facturée)\s*" + AMOUNT,
+        r"(?:tarif horaire hors forfait (?:de|s'établit à)|facturée"
+        r"|out-of-package hourly rate (?:of|is))\s*" + CURRENCY + AMOUNT,
         1,
     ),
-    "service_hours": (r"Plages? de service\s*:\s*([^\n]+)", 1),
-    "penalties": (r"Pénalités?\s*:\s*([^\n]+)", 1),
-    "indexation_clause": (r"Clause d'indexation\s*:\s*([^\n]+)", 1),
-    "covered_accounts_or_resources": (r"couvre\s+([0-9]+)\s+comptes? ou ressources", 1),
+    "service_hours": (
+        r"(?:Plages? de service\s*:|Service windows\s*:|delivered during the following windows:\s*)"
+        r"([^\n]+)",
+        1,
+    ),
+    "penalties": (r"(?:Pénalités?|Penalties)\s*:\s*([^\n]+)", 1),
+    "indexation_clause": (
+        r"(?:Clause d'indexation|Price indexation clause)\s*:\s*([^\n]+)",
+        1,
+    ),
+    "covered_accounts_or_resources": (
+        r"(?:couvre|covers)\s+([0-9]+)\s+(?:comptes? ou ressources|managed accounts)",
+        1,
+    ),
 }
 
 LABEL_LINE = re.compile(r"^\s*(?P<label>[A-Za-zÀ-ÿ][^:\n]{2,45})\s*:\s*(?P<value>.+?)\s*$")
 
 LIST_HEADINGS = {
-    "services_included": ("services inclus", "services couverts"),
+    "services_included": ("included services", "services inclus", "services couverts"),
     "exclusions": ("exclusions",),
 }
 
