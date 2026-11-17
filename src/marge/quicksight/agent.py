@@ -85,7 +85,9 @@ _EXAMPLES: tuple[AgentExample, ...] = (
     ),
     AgentExample(
         example_id="EX-03",
-        question=("How many out-of-scope hours did we work for client Leroy, and on which subjects?"),
+        question=(
+            "How many out-of-scope hours did we work for client Halley Freight, and on which subjects?"
+        ),
         expected_answer=(
             "The number of validated out-of-scope hours, split by work category, with their value "
             "at the contractual rate. The answer names the client and the period, links EF-TDB-03, "
@@ -96,7 +98,7 @@ _EXAMPLES: tuple[AgentExample, ...] = (
     ),
     AgentExample(
         example_id="EX-04",
-        question="Does the contract of client Martin include database version upgrades?",
+        question="Does the contract of client Marchbank Health include database version upgrades?",
         expected_answer=(
             "The answer to the question, taken from the services included and the exclusions of the "
             "contract, quoting the clause with its article number and naming the contract and its "

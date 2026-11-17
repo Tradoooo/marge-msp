@@ -40,12 +40,13 @@ AMENDED_CONTRACT_IDS: tuple[str, ...] = tuple(
     profile.contract.contract_id for profile in CLIENTS if profile.amendment is not None
 )
 
-LEGACY_ALIAS = ("itsm", "MARTIN", "MARTIN (ancien code client)")
+LEGACY_ALIAS = ("itsm", "MARCH", "MARCH (ancien code client)")
 """A legacy ITSM code that two clients could claim: the matcher cannot be sure.
 
-It is the one alias the R2 measure is allowed to get wrong, and the reason the
-proposal stays PENDING (EF-REF-01: a human decides).
+Both ``MARCHBANK`` (c-003) and ``MARCHETTI`` (c-004) start with ``MARCH``, so
+the code is ambiguous. It is the one alias the R2 measure is allowed to get
+wrong, and the reason the proposal stays PENDING (EF-REF-01: a human decides).
 """
 
-LEGACY_ALIAS_TRUTH = "c-012"
-"""What the MSP's own records say the legacy code ``MARTIN`` belongs to."""
+LEGACY_ALIAS_TRUTH = "c-004"
+"""What the MSP's own records say the legacy code ``MARCH`` belongs to."""
