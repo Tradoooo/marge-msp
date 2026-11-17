@@ -57,7 +57,7 @@ def test_extractor_flags_the_ambiguous_clause_and_only_that_one(generated):
 
 def test_extractor_reads_a_table_layout_contract(generated):
     fields = extract_fields((generated / "contracts" / "ctr-004-v1.txt").read_text("utf-8"))
-    assert fields.customer_name == "MARCHAND DISTRIBUTION SARL"
+    assert fields.customer_name == "MARCHETTI SUPPLY SARL"
     assert fields.monthly_subscription == Decimal("2900.00")
 
 

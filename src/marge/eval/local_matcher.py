@@ -32,6 +32,15 @@ NOISE = frozenset(
         "sci",
         "eurl",
         "sasu",
+        "scop",
+        "gie",
+        "ltd",
+        "inc",
+        "plc",
+        "gmbh",
+        "srl",
+        "group",
+        "holding",
         "ancien",
         "code",
         "client",
@@ -42,6 +51,14 @@ NOISE = frozenset(
     }
 )
 
+PREFIX_MIN_LENGTH = 4
+"""Shortest token a prefix match counts on (``MARCH`` vs ``Marchbank``).
+
+A legacy customer code is often the beginning of the client name: the
+production matcher gives a substring bonus for exactly that (confidence_for),
+so the offline matcher counts a shared prefix as half a token.
+"""
+
 
 def _tokens(text: str) -> set[str]:
     """Significant words of a name, plurals and legal forms removed."""
@@ -51,14 +68,28 @@ def _tokens(text: str) -> set[str]:
     return {word for word in words if word not in NOISE}
 
 
+def _shared(left: set[str], right: set[str]) -> Decimal:
+    """Exact token matches, plus 0.5 per prefix pair no exact match covers."""
+    shared = Decimal(len(left & right))
+    for a in left:
+        if a in right:
+            continue
+        for b in right:
+            if b in left or len(a) < PREFIX_MIN_LENGTH or len(b) < PREFIX_MIN_LENGTH:
+                continue
+            if a.startswith(b) or b.startswith(a):
+                shared += Decimal("0.5")
+    return shared
+
+
 def similarity(left: set[str], right: set[str]) -> Decimal:
     """Share of the longest name found in the other one (0 to 1)."""
     if not left or not right:
         return Decimal("0")
-    shared = len(left & right)
+    shared = _shared(left, right)
     if shared == 0:
         return Decimal("0")
-    return (Decimal(shared) / Decimal(max(len(left), len(right)))).quantize(Decimal("0.0001"))
+    return (shared / Decimal(max(len(left), len(right)))).quantize(Decimal("0.0001"))
 
 
 def _candidates(variant: str, clients: Sequence[tuple[str, str]]) -> list[tuple[Decimal, str]]:

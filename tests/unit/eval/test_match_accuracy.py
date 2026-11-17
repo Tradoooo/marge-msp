@@ -12,8 +12,10 @@ from marge.eval.match_accuracy import match_accuracy
 
 CLIENTS = (
     ("c-001", "Calder Logistics"),
-    ("c-002", "Leroy Logistique"),
-    ("c-012", "Martin Formation"),
+    ("c-002", "Halley Freight"),
+    ("c-003", "Marchbank Health"),
+    ("c-004", "Marchetti Supply"),
+    ("c-012", "Marten Training"),
 )
 
 
@@ -35,8 +37,8 @@ def test_match_accuracy_is_one_when_every_proposal_is_right():
 
 
 def test_match_accuracy_tolerates_a_wrong_proposal_but_reports_it():
-    matches = [_match("c-001", "CALDER"), _match("c-003", "MARTIN", DecisionStatus.PENDING)]
-    truth = [("c-001", "CALDER"), ("c-012", "MARTIN")]
+    matches = [_match("c-001", "CALDER"), _match("c-003", "MARCH", DecisionStatus.PENDING)]
+    truth = [("c-001", "CALDER"), ("c-004", "MARCH")]
     score = match_accuracy(matches, truth)
     assert score.value == Decimal("0.5000")
     assert score.passed is False
@@ -47,9 +49,9 @@ def test_match_accuracy_fails_when_a_validated_match_is_wrong():
     """R2 wants 100 % after validation: one wrong approved match fails the measure."""
     matches = [
         _match("c-001", "CALDER"),
-        _match("c-002", "MARTIN"),
+        _match("c-002", "MARCH"),
     ]
-    truth = [("c-001", "CALDER"), ("c-012", "MARTIN")]
+    truth = [("c-001", "CALDER"), ("c-004", "MARCH")]
     score = match_accuracy(matches, truth)
     assert score.passed is False
     assert any("must be 100%" in line for line in score.detail)
@@ -76,18 +78,18 @@ def test_best_candidate_is_not_confident_on_an_unknown_name():
 def test_propose_matches_only_validates_above_the_threshold():
     aliases = [
         {"source": "itsm", "source_id": "CALDER", "name_variant": "Calder Logistics"},
-        {"source": "itsm", "source_id": "MARTIN", "name_variant": "MARTIN (ancien code client)"},
+        {"source": "itsm", "source_id": "MARCH", "name_variant": "MARCH (ancien code client)"},
     ]
     matches = propose_matches(aliases, CLIENTS)
     by_source = {match.source_id: match for match in matches}
     assert by_source["CALDER"].status == DecisionStatus.APPROVED
-    assert by_source["MARTIN"].status == DecisionStatus.PENDING
-    assert by_source["MARTIN"].confidence < Decimal("0.80")
+    assert by_source["MARCH"].status == DecisionStatus.PENDING
+    assert by_source["MARCH"].confidence < Decimal("0.80")
 
 
 def test_propose_matches_never_sees_the_expected_answer():
     """The matcher must work from the name only, never from the client id."""
-    aliases = [{"source": "itsm", "source_id": "X1", "name_variant": "Leroy Logistique"}]
+    aliases = [{"source": "itsm", "source_id": "X1", "name_variant": "Halley Freight"}]
     matches = propose_matches(aliases, CLIENTS)
     assert matches[0].client_id == "c-002"
 

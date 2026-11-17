@@ -183,8 +183,8 @@ Open the Quick chat agent (*"Profitability Analyst"*) and try these seeded promp
 
 - *"Which clients are below 20% margin this quarter?"* → returns ranked list with dashboard links.
 - *"Why did Calder Logistics' margin drop in October?"* → decomposes cost: labor spike, ticket count, out-of-scope volume.
-- *"Does client Martin's contract include database engine version upgrades?"* → cites the exact exclusion clause from the contract.
-- *"What did client Leroy cost us over the last 6 months, and on what topics?"* → breaks down effort by category.
+- *"Does client Marchbank Health's contract include database engine version upgrades?"* → cites the exact exclusion clause from the contract.
+- *"What did client Halley Freight cost us over the last 6 months, and on what topics?"* → breaks down effort by category.
 - *"Which contracts renew within 90 days with a falling margin?"* → returns the renewing client.
 
 ### 3.3 Scenarios (EF-AGT-05)
@@ -195,7 +195,7 @@ Open the Quick chat agent (*"Profitability Analyst"*) and try these seeded promp
 ### 3.4 MCP Actions (EF-AGT-04)
 
 - Ask the agent: *"Create a renegotiation task for Calder Logistics with the cost dossier attached."* → calls `create_renegotiation_task`, returns task id in the ITSM tool.
-- Ask the agent: *"Prepare a draft extra billing proposal for client Leroy for October unbilled hours."* → calls `draft_extra_billing_proposal`, returns a draft invoice proposal with cited clauses.
+- Ask the agent: *"Prepare a draft extra billing proposal for client Halley Freight for October unbilled hours."* → calls `draft_extra_billing_proposal`, returns a draft invoice proposal with cited clauses.
 
 ### 3.5 Scheduled Review (EF-REV-01..02)
 

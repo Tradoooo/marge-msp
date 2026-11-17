@@ -47,7 +47,7 @@
           "dashboard link",
           "validation state"
         ],
-        "question": "How many out-of-scope hours did we work for client Leroy, and on which subjects?"
+        "question": "How many out-of-scope hours did we work for client Halley Freight, and on which subjects?"
       },
       {
         "dashboard": "EF-TDB-02",
@@ -58,7 +58,7 @@
           "clause",
           "article number"
         ],
-        "question": "Does the contract of client Martin include database version upgrades?"
+        "question": "Does the contract of client Marchbank Health include database version upgrades?"
       },
       {
         "dashboard": "EF-TDB-04",

@@ -93,8 +93,8 @@ Les six familles de routes du chapitre 16 répondent **200** derrière CloudFron
 | 2026-08 | 12 | 7 841,50 | 15,5 % |
 | 2026-10 | 12 | 7 148,60 | 13,6 % |
 
-Clients les moins rentables en octobre : Marchand Distribution −31,7 %,
-Blanchard Chimie −30,8 %, Girard BTP 9,3 %, Leroy Logistique 14,9 %,
+Clients les moins rentables en octobre : Marchetti Supply −31,7 %,
+Blenkem Chemicals −30,8 %, Garrido Construction 9,3 %, Halley Freight 14,9 %,
 **Calder Logistics 19,4 %** — ce dernier reproduit exactement l'annexe D.
 
 ## 4. Appels réels à un service IA AWS (exigence du ch. 20.1)

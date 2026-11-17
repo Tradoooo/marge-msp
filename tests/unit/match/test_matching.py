@@ -10,20 +10,20 @@ from marge.match.proposal import duplicate_ids, propose_matches
 
 CLIENTS = [
     ClientName("c-001", "Calder Logistics"),
-    ClientName("c-002", "Leroy & Fils"),
-    ClientName("c-003", "Martin Santé"),
+    ClientName("c-002", "Halley & Sons"),
+    ClientName("c-003", "Marchbank Health"),
 ]
 
 ALIASES = [
     Alias("c-001", SourceKind.ITSM, "CALDER", "Calder"),
     Alias("c-001", SourceKind.BILLING, "111122223333", "calder-logistics-prod"),
-    Alias("c-002", SourceKind.ITSM, "LERFILS", "Leroy et Fils"),
-    Alias("c-003", SourceKind.ITSM, "MARSAN", "MARTIN SANTE SAS"),
+    Alias("c-002", SourceKind.ITSM, "HALSOS", "Halley et Fils"),
+    Alias("c-003", SourceKind.ITSM, "MARCHBANK", "MARCHBANK HEALTH LTD"),
 ]
 
 
 def test_normalise_removes_accents_case_and_legal_form() -> None:
-    assert normalise_name("MARTIN SANTE SAS") == "martin sante"
+    assert normalise_name("MARCHBANK HEALTH LTD") == "marchbank health"
     assert normalise_name("Société Générale SA") == "societe generale"
 
 
@@ -48,8 +48,8 @@ def test_proposals_are_all_pending() -> None:
 def test_proposals_point_to_the_right_client() -> None:
     proposals = {p.source_id: p.client_id for p in propose_matches(ALIASES, CLIENTS)}
     assert proposals["CALDER"] == "c-001"
-    assert proposals["LERFILS"] == "c-002"
-    assert proposals["MARSAN"] == "c-003"
+    assert proposals["HALSOS"] == "c-002"
+    assert proposals["MARCHBANK"] == "c-003"
 
 
 def test_duplicate_ids_are_flagged() -> None:
