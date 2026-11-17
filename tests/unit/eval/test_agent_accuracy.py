@@ -28,7 +28,7 @@ REFERENCE = [
         "id": "q03",
         "question": "Quelle clause exclut les développements ?",
         "expected_kind": "contract_clause",
-        "expected_value": "les développements applicatifs",
+        "expected_value": "application development",
         "dashboard": "contracts",
     },
 ]
@@ -47,7 +47,7 @@ def test_agent_accuracy_is_one_when_every_answer_matches():
         _answer(
             question_id="q03",
             kind="contract_clause",
-            value="Les développements applicatifs",
+            value="Application development",
             dashboard="contracts",
         ),
     ]
@@ -95,7 +95,7 @@ def test_agent_accuracy_compares_text_without_accents_or_case():
         _answer(
             question_id="q03",
             kind="contract_clause",
-            value="les developpements applicatifs",
+            value="application development",
             dashboard="contracts",
         )
     ]

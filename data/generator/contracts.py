@@ -14,7 +14,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from . import contract_prose as prose
-from .common import french_hours, french_money, write_text
+from .common import english_hours, english_money, write_text
 from .pdf import generate_pdf
 from .profiles import MSP_BRAND, ContractSpec
 
@@ -75,8 +75,8 @@ ORDER_D = (
     prose.TERMINATION,
 )
 
-GENERAL = "CONDITIONS GÉNÉRALES"
-SPECIFIC = "CONDITIONS PARTICULIÈRES"
+GENERAL = "GENERAL CONDITIONS"
+SPECIFIC = "SPECIFIC CONDITIONS"
 GENERAL_PART = (GENERAL, (prose.PARTIES, prose.OBJECT, prose.DURATION, prose.TERMINATION))
 SPECIFIC_PART = (
     SPECIFIC,
@@ -108,7 +108,7 @@ STYLES: dict[str, Style] = {
     "table": Style("table", "Article {n} — {title}", (("", ORDER_A),), table_body=True, phrasing=1),
     "letter": Style("letter", "{title}", (("", ORDER_C),), letter=True, phrasing=2),
     "clauses": Style("clauses", "CLAUSE {n} — {title}", (("", ORDER_B),), phrasing=0),
-    "sections": Style("sections", "TITRE {n} — {title}", (("", ORDER_A),), phrasing=1),
+    "sections": Style("sections", "SECTION {n} — {title}", (("", ORDER_A),), phrasing=1),
     "reversed": Style("reversed", "Article {n} — {title}", (("", ORDER_D),), phrasing=2),
     "annexes": Style("annexes", "Article {n} — {title}", (("", ORDER_A),), annex=True, phrasing=0),
     "summary_table": Style(
@@ -134,33 +134,33 @@ def _roman(index: int) -> str:
 
 
 def scalar_fields(spec: ContractSpec) -> tuple[tuple[str, str], ...]:
-    """The Annex B scalar fields, as ``(label, French value)`` pairs."""
+    """The Annex B scalar fields, as ``(label, English value)`` pairs."""
     quota = (
-        "illimité" if spec.included_hours_per_month is None else french_hours(spec.included_hours_per_month)
+        "unlimited" if spec.included_hours_per_month is None else english_hours(spec.included_hours_per_month)
     )
     return (
         ("Client", spec.customer_name),
-        ("Date d'effet", spec.start_date.isoformat()),
-        ("Date de fin", spec.end_date.isoformat()),
-        ("Reconduction", spec.renewal_terms),
-        ("Préavis de résiliation", spec.termination_notice),
-        ("Abonnement mensuel", f"{french_money(spec.monthly_subscription, spec.currency)} HT"),
-        ("Heures incluses par mois", quota),
-        ("Tarif horaire hors forfait", french_money(spec.extra_hour_rate, spec.currency)),
-        ("Plages de service", spec.service_hours),
-        ("Pénalités", spec.penalties),
-        ("Clause d'indexation", spec.indexation_clause),
-        ("Comptes et ressources couverts", str(spec.covered_accounts_or_resources)),
+        ("Effective date", spec.start_date.isoformat()),
+        ("End date", spec.end_date.isoformat()),
+        ("Renewal", spec.renewal_terms),
+        ("Termination notice", spec.termination_notice),
+        ("Monthly subscription", f"{english_money(spec.monthly_subscription, spec.currency)} excl. VAT"),
+        ("Included hours per month", quota),
+        ("Out-of-package hourly rate", english_money(spec.extra_hour_rate, spec.currency)),
+        ("Service windows", spec.service_hours),
+        ("Penalties", spec.penalties),
+        ("Price indexation clause", spec.indexation_clause),
+        ("Covered accounts and resources", str(spec.covered_accounts_or_resources)),
     )
 
 
 def list_fields(spec: ContractSpec) -> tuple[tuple[str, tuple[str, ...]], ...]:
     """The Annex B list fields, kept whole (spec 13.1)."""
     return (
-        ("Services inclus", spec.services_included),
+        ("Included services", spec.services_included),
         ("Exclusions", spec.exclusions),
         (
-            "Engagements de niveau de service",
+            "Service level commitments",
             tuple(f"{item.subject} — {item.target}" for item in spec.sla_commitments),
         ),
     )
@@ -198,10 +198,10 @@ def contract_fields(spec: ContractSpec) -> dict:
 
 
 def _title_block(spec: ContractSpec) -> list[str]:
-    kind = "AVENANT AU CONTRAT DE SERVICES MANAGÉS" if spec.version > 1 else "CONTRAT DE SERVICES MANAGÉS"
-    lines = [kind, f"n° {spec.contract_id} — version {spec.version}"]
+    kind = "AMENDMENT TO THE MANAGED SERVICES AGREEMENT" if spec.version > 1 else "MANAGED SERVICES AGREEMENT"
+    lines = [kind, f"no. {spec.contract_id} — version {spec.version}"]
     if spec.status != "VALIDATED":
-        lines.append("Document non validé par le contrôleur de gestion.")
+        lines.append("Document not validated by the controller.")
     lines.extend([f"{MSP_BRAND} — {spec.customer_name}", ""])
     return lines
 
@@ -216,7 +216,7 @@ def _table_rows(spec: ContractSpec) -> list[str]:
 
 
 def _prose_recap(spec: ContractSpec) -> list[str]:
-    lines = ["Récapitulatif des conditions", ""]
+    lines = ["Recap of the contractual terms", ""]
     lines.extend(f"{label} : {value}" for label, value in scalar_fields(spec))
     for label, items in list_fields(spec):
         lines.append(f"{label} :")
@@ -227,14 +227,14 @@ def _prose_recap(spec: ContractSpec) -> list[str]:
 def _annex_lines(spec: ContractSpec) -> list[str]:
     return [
         "",
-        "ANNEXE 1 — COMPTES ET RESSOURCES COUVERTS",
+        "ANNEX 1 — COVERED ACCOUNTS AND RESOURCES",
         "",
-        f"La présente annexe recense les {spec.covered_accounts_or_resources} comptes et "
-        "ressources gérés entrant dans le périmètre du contrat.",
-        "- Comptes AWS de production et de préproduction du Client",
-        "- Équipements réseau et pare-feu du siège",
-        "- Serveurs et bases de données supervisés",
-        "- Postes de travail couverts par le support de premier niveau",
+        f"This annex lists the {spec.covered_accounts_or_resources} managed accounts and "
+        "resources that fall within the scope of the contract.",
+        "- Client production and pre-production AWS accounts",
+        "- Network equipment and firewalls of the head office",
+        "- Supervised servers and databases",
+        "- Workstations covered by first-line support",
     ]
 
 
@@ -254,17 +254,17 @@ def _numbered_body(spec: ContractSpec, style: Style) -> list[str]:
 
 
 def render_contract(spec: ContractSpec) -> str:
-    """The full French text of one contract version (also used for the PDF)."""
+    """The full English text of one contract version (also used for the PDF)."""
     style = STYLES[spec.style]
     lines: list[str] = _title_block(spec)
     if style.letter:
-        lines.extend(["Madame, Monsieur,", ""])
+        lines.extend(["Dear Sir or Madam,", ""])
     if style.recap_at_top and style.recap_as_table:
-        lines.extend(["FICHE CONTRACTUELLE", "", "| Champ | Valeur |"])
+        lines.extend(["CONTRACT SUMMARY SHEET", "", "| Field | Value |"])
         lines.extend(_table_rows(spec))
         lines.append("")
     if style.table_body:
-        lines.extend(["TABLEAU DES CONDITIONS CONTRACTUELLES", "", "| Champ | Valeur |"])
+        lines.extend(["TABLE OF CONTRACTUAL TERMS", "", "| Field | Value |"])
         lines.extend(_table_rows(spec))
         lines.append("")
     lines.extend(_numbered_body(spec, style))
@@ -274,9 +274,9 @@ def render_contract(spec: ContractSpec) -> str:
         lines.extend(
             [
                 "",
-                "Nous vous prions d'agréer, Madame, Monsieur, l'expression de nos salutations distinguées.",
+                "Yours faithfully,",
                 "",
-                f"Pour {MSP_BRAND}, le Directeur des opérations",
+                f"For {MSP_BRAND}, the Operations Director",
             ]
         )
     if not style.recap_at_top and not style.table_body:

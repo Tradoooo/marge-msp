@@ -18,31 +18,31 @@ from marge.contracts import (
 from marge.contracts.schema import FIELD_PLAN, field_plan_payload, parse_money, validate_fields
 from marge.domain import ContractStatus
 
-SAMPLE = """CONTRAT DE SERVICES MANAGÉS
+SAMPLE = """MANAGED SERVICES AGREEMENT
 Client : Calder Logistics
-Date d'effet : 01/01/2026
-Date de fin : 31/12/2026
-Reconduction : tacite, 12 mois
-Préavis : 3 mois
-Abonnement mensuel : 4 000,00 EUR
-Heures incluses : 50
-Tarif horaire hors forfait : 110,00 EUR
-Plages de service : 24x7
-Pénalités : 5 % de l'abonnement par incident majeur
-Indexation : INSEE annuelle
-Ressources couvertes : 40
+Effective date : 01/01/2026
+End date : 31/12/2026
+Renewal : automatic, 12 months
+Termination notice : 3 months
+Monthly subscription : EUR 4,000.00 excl. VAT
+Included hours per month : 50
+Out-of-package hourly rate : EUR 110.00
+Service windows : 24x7
+Penalties : 5 % of the subscription per major incident
+Price indexation clause : annual index
+Covered accounts and resources : 40
 
-Services inclus
-- Supervision 24/7 de l'infrastructure
-- Sauvegarde et restauration
-- Patch management des systèmes
+Included services
+- 24/7 infrastructure monitoring
+- Data backup and restoration
+- Operating system patch management
 
 Exclusions
-- les développements applicatifs et la modification du code du Client
-- la formation des équipes du Client
+- application development and modification of the Client's code
+- training of the Client's teams
 
 Engagements
-- Disponibilité 99,9 %
+- Availability 99.9 %
 """
 
 
@@ -93,8 +93,8 @@ def test_local_extractor_reads_every_key_field() -> None:
 
 def test_local_extractor_keeps_included_and_excluded_lists() -> None:
     fields = extract_fields(SAMPLE.encode("utf-8"))
-    assert any("Supervision" in item for item in fields.services_included)
-    assert any("développements" in item for item in fields.exclusions)
+    assert any("infrastructure monitoring" in item for item in fields.services_included)
+    assert any("application development" in item for item in fields.exclusions)
 
 
 def test_every_extracted_field_has_its_source_passage() -> None:
@@ -158,7 +158,8 @@ def test_amendment_creates_a_new_version() -> None:
     assert amended.contract_id == previous.contract_id
 
 
-def test_parse_money_handles_french_formatting() -> None:
+def test_parse_money_handles_both_number_formats() -> None:
+    assert parse_money("EUR 4,000.00 excl. VAT") == Decimal("4000.00")
     assert parse_money("4 000,00 €") == Decimal("4000.00")
     assert parse_money("110.5") == Decimal("110.5")
 

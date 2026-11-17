@@ -31,8 +31,20 @@ OUT_KEYWORDS: tuple[str, ...] = (
     "migration applicative",
     "integration api",
     "audit de securite",
+    "application development",
+    "sql query",
+    "code modification",
+    "user training",
+    "hardware purchase",
+    "application migration",
+    "security audit",
 )
-"""Vocabulary of the exclusion lists (spec 13.1 keeps them whole)."""
+"""Vocabulary of the exclusion lists (spec 13.1 keeps them whole).
+
+French first: the interventions are typed in French. The English spellings
+follow, so the clause quoted back to the user is the one of the English
+contracts.
+"""
 
 IN_KEYWORDS: tuple[str, ...] = (
     "supervision",
@@ -45,12 +57,24 @@ IN_KEYWORDS: tuple[str, ...] = (
     "couts aws",
     "support",
     "redemarrage",
+    "monitoring",
+    "backup",
+    "restoration",
+    "database upgrade",
+    "incident management",
+    "access and account",
+    "aws cost",
 )
 
 VAGUE_MARKERS: tuple[str, ...] = (
+    "reasonable",
+    "substantial",
+    "notable",
+    "significant",
+    "depending on the scale",
+    "case by case",
     "raisonnable",
     "substantielle",
-    "notable",
     "significative",
     "selon l'ampleur",
     "au cas par cas",

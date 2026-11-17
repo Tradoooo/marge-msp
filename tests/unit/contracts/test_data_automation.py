@@ -19,8 +19,8 @@ RESULT = {
         "CUSTOMER_NAME": {"value": "Calder Logistics", "beginOffset": 12, "endOffset": 40, "page": 1},
         "MONTHLY_SUBSCRIPTION": {"value": "4 000,00 EUR", "beginOffset": 900, "page": 2},
         "INCLUDED_HOURS_PER_MONTH": {"value": "50", "page": 2},
-        "SERVICES_INCLUDED": {"value": ["Supervision 24/7", "Sauvegarde"], "page": 3},
-        "EXCLUSIONS": {"value": ["les développements applicatifs"], "page": 3},
+        "SERVICES_INCLUDED": {"value": ["24/7 infrastructure monitoring", "Data backup"], "page": 3},
+        "EXCLUSIONS": {"value": ["application development"], "page": 3},
         "START_DATE": {"value": "2026-01-01"},
     }
 }
@@ -140,8 +140,8 @@ def test_annex_b_fields_are_typed_from_the_result() -> None:
     fields = _client().extract("contracts/ctr-001-v1.pdf")
     assert fields.monthly_subscription == 4000
     assert fields.included_hours_per_month == 50
-    assert "Supervision 24/7" in fields.services_included
-    assert fields.exclusions == ("les développements applicatifs",)
+    assert "24/7 infrastructure monitoring" in fields.services_included
+    assert fields.exclusions == ("application development",)
 
 
 def test_source_spans_are_kept_for_the_portal() -> None:

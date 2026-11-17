@@ -8,35 +8,35 @@ import pytest
 
 ANNEX_B_LABELS = (
     "Client",
-    "Date d'effet",
-    "Date de fin",
-    "Reconduction",
-    "Préavis de résiliation",
-    "Abonnement mensuel",
-    "Heures incluses par mois",
-    "Tarif horaire hors forfait",
-    "Services inclus",
+    "Effective date",
+    "End date",
+    "Renewal",
+    "Termination notice",
+    "Monthly subscription",
+    "Included hours per month",
+    "Out-of-package hourly rate",
+    "Included services",
     "Exclusions",
-    "Plages de service",
-    "Engagements de niveau de service",
-    "Pénalités",
-    "Clause d'indexation",
-    "Comptes et ressources couverts",
+    "Service windows",
+    "Service level commitments",
+    "Penalties",
+    "Price indexation clause",
+    "Covered accounts and resources",
 )
 
 SECTION_TITLES = (
-    "Parties au contrat",
-    "Objet du contrat",
-    "Durée et reconduction",
-    "Comptes et ressources couverts",
-    "Conditions financières",
-    "Services inclus",
+    "Parties to the contract",
+    "Purpose of the contract",
+    "Term and renewal",
+    "Covered accounts and resources",
+    "Financial terms",
+    "Included services",
     "Exclusions",
-    "Plages de service",
-    "Engagements de niveau de service",
-    "Pénalités",
-    "Indexation",
-    "Résiliation",
+    "Service windows",
+    "Service level commitments",
+    "Penalties",
+    "Price indexation",
+    "Termination",
 )
 
 
@@ -92,10 +92,10 @@ def test_contract_forms_are_visibly_different(dataset_root):
     signatures = {stem: _signature(text) for stem, text in texts.items()}
     assert len(set(signatures.values())) >= 5, "the section order must vary"
     assert any("CLAUSE" in text for text in texts.values())
-    assert any("TITRE" in text for text in texts.values())
+    assert any("SECTION" in text for text in texts.values())
     assert any("§" in text for text in texts.values())
-    assert any("CONDITIONS PARTICULIÈRES" in text for text in texts.values())
-    assert any("Madame, Monsieur," in text for text in texts.values())
+    assert any("SPECIFIC CONDITIONS" in text for text in texts.values())
+    assert any("Dear Sir or Madam," in text for text in texts.values())
     assert any(text.count("|") > 20 for text in texts.values()), "one contract uses a table layout"
 
 
@@ -105,7 +105,7 @@ def test_contract_expected_fields_cover_every_version(dataset_root):
     assert len(expected) == 13
     assert set(expected) == {path.stem for path in (dataset_root / "contracts").glob("*.txt")}
     sample = expected["ctr-001-v1"]
-    assert sample["customer_name"] == "CALDER LOGISTICS SAS"
+    assert sample["customer_name"] == "CALDER LOGISTICS LTD"
     assert sample["monthly_subscription"] == "5000.00"
     assert sample["extra_hour_rate"] == "110.00"
     assert sample["included_hours_per_month"] == "60.00"
@@ -120,4 +120,4 @@ def test_one_contract_has_an_ambiguous_clause(dataset_root):
     expected = json.loads((dataset_root / "expected" / "contract_fields.json").read_text(encoding="utf-8"))
     ambiguous = [key for key, row in expected.items() if row["ambiguous_clause"]]
     assert ambiguous == ["ctr-007-v1"]
-    assert any("raisonnable" in item for item in expected["ctr-007-v1"]["exclusions"])
+    assert any("reasonable" in item for item in expected["ctr-007-v1"]["exclusions"])

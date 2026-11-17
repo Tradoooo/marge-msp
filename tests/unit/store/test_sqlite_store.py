@@ -62,7 +62,7 @@ def test_contract_round_trip_keeps_decimals(store: SqliteStore) -> None:
     loaded = store.get_contract("ctr-001")
     assert loaded is not None
     assert loaded.fields.monthly_subscription == Decimal("4000.00")
-    assert loaded.fields.exclusions[0].startswith("les développements")
+    assert loaded.fields.exclusions[0].startswith("application development")
     assert loaded.status == ContractStatus.VALIDATED
     assert loaded.fields.end_date is not None
 

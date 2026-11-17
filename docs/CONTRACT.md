@@ -30,7 +30,11 @@ refers to that document.
 9. **Every test is offline and deterministic.** No network, no AWS
    credentials, no sleeps. Use the fakes in `tests/fakes/`.
 10. **English in code, comments, commit messages and all submission docs.**
-    `docs/SPEC.fr.md` stays French.
+    `docs/SPEC.fr.md` stays French. The **contracts** of the demo are English
+    (legal form `LTD`): the judges and the video audience read them. The rest
+    of the generated data (tickets, billing, invoices) stays French — that is
+    what a French MSP has on disk — and the extractors, the matcher and the
+    classifier accept both languages.
 
 ## 2. Directory ownership
 

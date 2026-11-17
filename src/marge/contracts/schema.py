@@ -6,12 +6,18 @@ Automation job, the local deterministic extractor and the evaluation harness.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from ..domain import ContractFields, SlaCommitment
+
+AMOUNT_NOISE = re.compile(
+    r"(?i)(eur|usd|gbp|chf|€|\$|ht|excl\.?\s*vat|excl\.?\s*tax|vat|tax|heures?|hours?|%)"
+)
+"""Words that never carry a digit: currencies, tax markers, units."""
 
 FIELD_PLAN: tuple[str, ...] = (
     "customer_name",
@@ -48,22 +54,22 @@ class FieldPlanEntry:
 
 
 FIELD_HINTS: tuple[FieldPlanEntry, ...] = (
-    FieldPlanEntry("customer_name", "text", "Raison sociale du client"),
-    FieldPlanEntry("start_date", "date", "Date d'effet du contrat"),
-    FieldPlanEntry("end_date", "date", "Date de fin"),
-    FieldPlanEntry("renewal_terms", "text", "Reconduction tacite ou non, durée"),
-    FieldPlanEntry("termination_notice", "text", "Préavis de résiliation"),
-    FieldPlanEntry("monthly_subscription", "money", "Abonnement mensuel hors taxes"),
-    FieldPlanEntry("currency", "text", "Devise du contrat"),
-    FieldPlanEntry("included_hours_per_month", "number", "Heures incluses par mois"),
-    FieldPlanEntry("extra_hour_rate", "money", "Tarif horaire hors forfait"),
-    FieldPlanEntry("services_included", "list", "Liste des services inclus"),
-    FieldPlanEntry("exclusions", "list", "Liste des exclusions"),
-    FieldPlanEntry("service_hours", "text", "Plages de service"),
-    FieldPlanEntry("sla_commitments", "list", "Engagements de niveau de service"),
-    FieldPlanEntry("penalties", "text", "Mode de calcul des pénalités"),
-    FieldPlanEntry("indexation_clause", "text", "Clause d'indexation"),
-    FieldPlanEntry("covered_accounts_or_resources", "number", "Comptes ou ressources couverts"),
+    FieldPlanEntry("customer_name", "text", "Legal name of the client"),
+    FieldPlanEntry("start_date", "date", "Effective date of the contract"),
+    FieldPlanEntry("end_date", "date", "End date"),
+    FieldPlanEntry("renewal_terms", "text", "Renewal terms (automatic or not, duration)"),
+    FieldPlanEntry("termination_notice", "text", "Termination notice"),
+    FieldPlanEntry("monthly_subscription", "money", "Monthly subscription excluding tax"),
+    FieldPlanEntry("currency", "text", "Currency of the contract"),
+    FieldPlanEntry("included_hours_per_month", "number", "Included hours per month"),
+    FieldPlanEntry("extra_hour_rate", "money", "Hourly rate beyond the included hours"),
+    FieldPlanEntry("services_included", "list", "List of the included services"),
+    FieldPlanEntry("exclusions", "list", "List of the exclusions"),
+    FieldPlanEntry("service_hours", "text", "Service windows"),
+    FieldPlanEntry("sla_commitments", "list", "Service level commitments"),
+    FieldPlanEntry("penalties", "text", "How the penalties are computed"),
+    FieldPlanEntry("indexation_clause", "text", "Price indexation clause"),
+    FieldPlanEntry("covered_accounts_or_resources", "number", "Covered accounts or resources"),
 )
 
 
@@ -108,37 +114,64 @@ def field_plan_payload() -> dict[str, Any]:
 
 
 def parse_money(raw: object) -> Decimal:
-    """Parse ``4 000,00 €`` / ``4000.00`` / ``4 000 EUR`` into a Decimal."""
-    text = str(raw or "0")
+    """Parse ``EUR 4,600.00`` / ``4 000,00 €`` / ``4000.00`` into a Decimal.
+
+    The last separator written is the decimal one: ``4,600.00`` and
+    ``4 600,00`` both give ``4600.00``.
+    """
+    text = AMOUNT_NOISE.sub(" ", str(raw or "0"))
     cleaned = "".join(ch for ch in text if ch.isdigit() or ch in ".,-")
-    cleaned = cleaned.replace(".", "").replace(",", ".") if "," in cleaned else cleaned
+    cleaned = _decimal_separator(cleaned)
     try:
         return Decimal(cleaned or "0")
     except InvalidOperation:
         return Decimal("0")
 
 
-FRENCH_MONTHS = {
+def _decimal_separator(text: str) -> str:
+    """One decimal separator, thousands removed."""
+    if "," in text and "." in text:
+        if text.rfind(".") > text.rfind(","):
+            return text.replace(",", "")
+        return text.replace(".", "").replace(",", ".")
+    if "," in text:
+        return text.replace(",", ".")
+    return text
+
+
+MONTHS: dict[str, int] = {
+    "january": 1,
     "janvier": 1,
+    "february": 2,
     "fevrier": 2,
     "février": 2,
+    "march": 3,
     "mars": 3,
+    "april": 4,
     "avril": 4,
+    "may": 5,
     "mai": 5,
+    "june": 6,
     "juin": 6,
+    "july": 7,
     "juillet": 7,
+    "august": 8,
     "aout": 8,
     "août": 8,
+    "september": 9,
     "septembre": 9,
+    "october": 10,
     "octobre": 10,
+    "november": 11,
     "novembre": 11,
+    "december": 12,
     "decembre": 12,
     "décembre": 12,
 }
 
 
 def parse_date(raw: object) -> date | None:
-    """Parse ``31/12/2026``, ``2026-12-31`` or ``31 décembre 2026``."""
+    """Parse ``31/12/2026``, ``2026-12-31`` or ``31 December 2026``."""
     import re
 
     text = str(raw or "").strip()
@@ -152,7 +185,7 @@ def parse_date(raw: object) -> date | None:
         return date(int(french.group(3)), int(french.group(2)), int(french.group(1)))
     words = re.match(r"(\d{1,2})\s+([A-Za-zÀ-ÿ]+)\s+(\d{4})", text)
     if words:
-        month = FRENCH_MONTHS.get(words.group(2).lower())
+        month = MONTHS.get(words.group(2).lower())
         if month:
             return date(int(words.group(3)), month, int(words.group(1)))
     return None

@@ -30,7 +30,7 @@ def _contracts(root: Path) -> list[Contract]:
 
 def test_extractor_reads_the_scalar_fields_of_a_contract(generated):
     fields = extract_fields((generated / "contracts" / "ctr-001-v1.txt").read_text("utf-8"))
-    assert fields.customer_name == "CALDER LOGISTICS SAS"
+    assert fields.customer_name == "CALDER LOGISTICS LTD"
     assert fields.start_date == date(2024, 1, 11)
     assert fields.monthly_subscription == Decimal("5000.00")
     assert fields.extra_hour_rate == Decimal("110.00")
@@ -51,13 +51,13 @@ def test_extractor_flags_the_ambiguous_clause_and_only_that_one(generated):
     ambiguous = extract_fields((generated / "contracts" / "ctr-007-v1.txt").read_text("utf-8"))
     clean = extract_fields((generated / "contracts" / "ctr-004-v1.txt").read_text("utf-8"))
     assert "ambiguous_clause" in ambiguous.spans
-    assert "raisonnable" in ambiguous.spans["ambiguous_clause"].quote
+    assert "reasonable" in ambiguous.spans["ambiguous_clause"].quote
     assert "ambiguous_clause" not in clean.spans
 
 
 def test_extractor_reads_a_table_layout_contract(generated):
     fields = extract_fields((generated / "contracts" / "ctr-004-v1.txt").read_text("utf-8"))
-    assert fields.customer_name == "MARCHETTI SUPPLY SARL"
+    assert fields.customer_name == "MARCHETTI SUPPLY LTD"
     assert fields.monthly_subscription == Decimal("2900.00")
 
 
@@ -72,44 +72,44 @@ def _ctr001_expected() -> list[dict]:
         {
             "contract_id": "ctr-001",
             "version": 1,
-            "customer_name": "CALDER LOGISTICS SAS",
+            "customer_name": "CALDER LOGISTICS LTD",
             "start_date": "2024-01-11",
             "end_date": "2027-01-10",
-            "renewal_terms": "Tacite reconduction pour une période de 12 mois",
-            "termination_notice": "3 mois",
+            "renewal_terms": "Automatic renewal for a period of 12 months",
+            "termination_notice": "3 months",
             "monthly_subscription": "5000.00",
             "currency": "EUR",
             "included_hours_per_month": "60.00",
             "extra_hour_rate": "110.00",
             "services_included": [
-                "Supervision 24/7 de l'infrastructure",
-                "Sauvegarde et restauration des données",
-                "Patch management des systèmes d'exploitation",
-                "Gestion des incidents d'infrastructure",
-                "Gestion des accès et des comptes",
-                "Optimisation des coûts AWS",
-                "Supervision des sauvegardes et test de restauration trimestriel",
+                "24/7 infrastructure monitoring",
+                "Data backup and restoration",
+                "Operating system patch management",
+                "Infrastructure incident management",
+                "Access and account management",
+                "AWS cost optimisation",
+                "Monitoring of the backups and quarterly restoration test",
             ],
             "exclusions": [
-                "les développements applicatifs et la modification du code du Client",
-                "la formation des équipes du Client",
-                "l'achat de matériel et de licences tierces",
-                "les projets de migration applicative",
-                "les audits de sécurité applicative",
+                "application development and modification of the Client's code",
+                "training of the Client's teams",
+                "purchase of hardware and third-party licences",
+                "application migration projects",
+                "application security audits",
             ],
-            "service_hours": "24 h sur 24, 7 jours sur 7",
+            "service_hours": "24/7, seven days a week",
             "sla_commitments": [
-                {"subject": "Prise en charge d'un incident critique", "target": "30 minutes, 24 h sur 24"},
-                {"subject": "Disponibilité de la plateforme supervisée", "target": "99,5 % par mois"},
-                {"subject": "Restauration d'une sauvegarde", "target": "4 heures ouvrées"},
+                {"subject": "Take-over of a critical incident", "target": "30 minutes, 24/7"},
+                {"subject": "Availability of the supervised platform", "target": "99.5% per month"},
+                {"subject": "Restoration of a backup", "target": "4 business hours"},
             ],
             "penalties": (
-                "2 % de l'abonnement mensuel par incident critique pris en charge au-delà du délai "
-                "de l'engagement, plafonné à 15 % de l'abonnement mensuel."
+                "2 % of the monthly subscription for each critical incident taken over beyond the "
+                "committed delay, capped at 15 % of the monthly subscription."
             ),
             "indexation_clause": (
-                "Révision annuelle du prix au 1er janvier, sur présentation de l'indice Syntec, "
-                "dans la limite de 3 % par an."
+                "Annual price review on 1 January, on presentation of the Syntec index, "
+                "within a limit of 3 % per year."
             ),
             "covered_accounts_or_resources": 40,
             "ambiguous_clause": False,

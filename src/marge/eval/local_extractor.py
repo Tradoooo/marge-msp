@@ -18,25 +18,45 @@ from ..domain import Contract, ContractFields, ContractStatus, SlaCommitment, So
 from .fields import AMBIGUITY_SPAN, normalise_amount, normalise_text
 
 LABELS: dict[str, str] = {
+    # English labels of the generated contracts, and their French spellings,
+    # so a contract still on the disk of the MSP reads the same way.
     "client": "customer_name",
+    "effective date": "start_date",
     "date d'effet": "start_date",
+    "end date": "end_date",
     "date de fin": "end_date",
+    "renewal": "renewal_terms",
     "reconduction": "renewal_terms",
+    "termination notice": "termination_notice",
     "preavis de resiliation": "termination_notice",
+    "monthly subscription": "monthly_subscription",
     "abonnement mensuel": "monthly_subscription",
+    "included hours per month": "included_hours_per_month",
     "heures incluses par mois": "included_hours_per_month",
+    "out-of-package hourly rate": "extra_hour_rate",
     "tarif horaire hors forfait": "extra_hour_rate",
+    "service windows": "service_hours",
     "plages de service": "service_hours",
-    "penalites": "penalties",
+    "penalties": "penalties",
+    "price indexation clause": "indexation_clause",
     "clause d'indexation": "indexation_clause",
+    "covered accounts and resources": "covered_accounts_or_resources",
     "comptes et ressources couverts": "covered_accounts_or_resources",
+    "included services": "services_included",
     "services inclus": "services_included",
     "exclusions": "exclusions",
+    "service level commitments": "sla_commitments",
     "engagements de niveau de service": "sla_commitments",
 }
-"""French label -> Annex B field. The twelve layouts all carry these labels."""
+"""Contract label -> Annex B field. The twelve layouts all carry these labels."""
 
 VAGUE_MARKERS = (
+    "reasonable",
+    "substantial",
+    "notable",
+    "significant",
+    "depending on the scale",
+    "case by case",
     "raisonnable",
     "substantielle",
     "notable",
@@ -137,6 +157,12 @@ def _ambiguous_passage(exclusions: tuple[str, ...]) -> str | None:
     return None
 
 
+def _is_unlimited(quota_text: str) -> bool:
+    """True when the included hours are unlimited (``unlimited`` / ``illimité``)."""
+    text = normalise_text(quota_text)
+    return "unlimited" in text or "illimite" in text
+
+
 def extract_fields(text: str) -> ContractFields:
     """Read every Annex B field out of one contract text."""
     found = _collect(text)
@@ -151,9 +177,7 @@ def extract_fields(text: str) -> ContractFields:
         termination_notice=_first(found, "termination_notice"),
         monthly_subscription=_as_decimal(subscription_text) or Decimal("0"),
         currency=_as_currency(subscription_text),
-        included_hours_per_month=(
-            None if "illimite" in normalise_text(quota_text) else _as_decimal(quota_text)
-        ),
+        included_hours_per_month=(None if _is_unlimited(quota_text) else _as_decimal(quota_text)),
         extra_hour_rate=_as_decimal(_first(found, "extra_hour_rate")) or Decimal("0"),
         services_included=tuple(found.get("services_included", [])),
         exclusions=exclusions,
